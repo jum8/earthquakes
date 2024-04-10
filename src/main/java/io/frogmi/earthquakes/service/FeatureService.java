@@ -8,6 +8,10 @@ import io.frogmi.earthquakes.repos.FeatureRepository;
 import io.frogmi.earthquakes.util.NotFoundException;
 import io.frogmi.earthquakes.util.ReferencedWarning;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +33,17 @@ public class FeatureService {
         return features.stream()
                 .map(feature -> mapToDTO(feature, new FeatureGetAllDTO()))
                 .toList();
+    }
+
+
+    public Page<FeatureGetAllDTO> findAllFeaturesByMagType(String magType, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Feature> features = featureRepository.findAllFeaturesbyMagType(magType, pageRequest);
+
+        List<FeatureGetAllDTO> dtos = features.map(feature -> mapToDTO(feature, new FeatureGetAllDTO()))
+                .toList();
+
+        return new PageImpl<>(dtos, features.getPageable(), features.getTotalElements());
     }
 
     public FeatureDTO get(final Integer id) {

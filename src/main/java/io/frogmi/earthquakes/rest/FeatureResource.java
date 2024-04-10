@@ -1,12 +1,17 @@
 package io.frogmi.earthquakes.rest;
 
 import io.frogmi.earthquakes.model.FeatureDTO;
+import io.frogmi.earthquakes.model.FeatureGetAllDTO;
 import io.frogmi.earthquakes.service.FeatureService;
 import io.frogmi.earthquakes.util.ReferencedException;
 import io.frogmi.earthquakes.util.ReferencedWarning;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +36,11 @@ public class FeatureResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<FeatureDTO>> getAllFeatures() {
-        return ResponseEntity.ok(featureService.findAll());
+    public Map<String, Object> getAllFeatures() {
+        List<FeatureGetAllDTO> featureDTOS = featureService.findAll();
+        Map<String, Object> map = new HashMap<>();
+        map.put("data", featureDTOS);
+        return map;
     }
 
     @GetMapping("/{id}")

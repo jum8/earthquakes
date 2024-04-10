@@ -51,7 +51,9 @@ public class EarthquakeDataLoader implements CommandLineRunner {
                 Object features = responseBody.get("features");
                 List<FeatureData> featureList = mapper.convertValue(features, new TypeReference<List<FeatureData>>() {});
                 featureList.stream()
-                        .filter(featureData -> featureData.getProperties().getTitle() != null &&
+                        .filter(featureData ->
+                                !featureRepository.existsByExternalId(featureData.getId()) &&
+                                featureData.getProperties().getTitle() != null &&
                                 featureData.getProperties().getUrl() != null &&
                                 featureData.getProperties().getPlace() != null &&
                                 featureData.getProperties().getMagType() != null &&

@@ -36,7 +36,8 @@ public class FeatureResource {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(name = "per_page", defaultValue = "10") int size
     ) {
-        Page<FeatureGetAllDTO> pageFeatureDTOS = featureService.findAllFeaturesByMagType(magType, page, size);
+        Page<FeatureGetAllDTO> pageFeatureDTOS = featureService.findAllFeaturesByMagType(magType, page,
+                size > 1000 ? 1000 : size);
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("data", pageFeatureDTOS.getContent());
 

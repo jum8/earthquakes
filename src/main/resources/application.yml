@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${JDBC_DATABASE_URL:jdbc:h2:mem:earthquakes}
+    url: ${JDBC_DATABASE_URL:jdbc:h2:file:./data/earthquakes}
     username: ${JDBC_DATABASE_USERNAME:sa}
     password: ${JDBC_DATABASE_PASSWORD:sa}
     dbcp2:

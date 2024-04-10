@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,17 +32,17 @@ public class FeatureResource {
 
     @GetMapping
     public Map<String, Object> getAllFeatures(
-            @RequestParam(required = false) String magType,
+            @RequestParam(name = "mag_type", required = false) String[] magType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(name = "per_page", defaultValue = "10") int size
     ) {
         Page<FeatureGetAllDTO> pageFeatureDTOS = featureService.findAllFeaturesByMagType(magType, page, size);
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new LinkedHashMap<>();
         map.put("data", pageFeatureDTOS.getContent());
 
-        Map<String, Object> pagination = new HashMap<>();
+        Map<String, Object> pagination = new LinkedHashMap<>();
         pagination.put("current_page", pageFeatureDTOS.getNumber());
-        pagination.put("total", pageFeatureDTOS.getTotalElements());
+        pagination.put("total", pageFeatureDTOS.getTotalPages());
         pagination.put("per_page", pageFeatureDTOS.getSize());
 
         map.put("pagination", pagination);

@@ -31,6 +31,8 @@ public class EarthquakeDataLoader implements CommandLineRunner {
         RestTemplate restTemplate = new RestTemplate();
         ObjectMapper mapper = new ObjectMapper();
 
+        System.out.println("*".repeat(10) + "Running EarthquakeDataLoader" + "*".repeat(10));
+
         String url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
 
         HttpHeaders headers = new HttpHeaders();

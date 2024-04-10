@@ -14,5 +14,5 @@ public interface FeatureRepository extends JpaRepository<Feature, Integer> {
     @Query("SELECT f FROM Feature f WHERE " +
             "(COALESCE(:magType, '') = '' OR f.magType IN (:magType))")
 
-    Page<Feature> findAllFeaturesbyMagType(@Param("magType") String magType, Pageable pageable);
+    Page<Feature> findAllFeaturesbyMagType(@Param("magType") String[] magType, Pageable pageable);
 }

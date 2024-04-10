@@ -36,7 +36,7 @@ public class FeatureService {
     }
 
 
-    public Page<FeatureGetAllDTO> findAllFeaturesByMagType(String magType, int page, int size) {
+    public Page<FeatureGetAllDTO> findAllFeaturesByMagType(String[] magType, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Feature> features = featureRepository.findAllFeaturesbyMagType(magType, pageRequest);
 

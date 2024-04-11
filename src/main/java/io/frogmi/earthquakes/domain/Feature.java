@@ -24,9 +24,9 @@ public class Feature {
     @Column(nullable = false, updatable = false)
     @SequenceGenerator(
             name = "primary_sequence",
-            sequenceName = "primary_sequence",
+            sequenceName = "feature_id_seq",
             allocationSize = 1,
-            initialValue = 10000
+            initialValue = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,

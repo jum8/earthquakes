@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping(value = "/api/features", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/features", produces = MediaType.APPLICATION_JSON_VALUE)
 public class FeatureResource {
 
     private final FeatureService featureService;

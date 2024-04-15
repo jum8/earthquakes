@@ -3,6 +3,7 @@ package io.frogmi.earthquakes.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.frogmi.earthquakes.domain.Feature;
+import io.frogmi.earthquakes.model.FeatureDTO;
 import io.frogmi.earthquakes.model.FeatureData;
 import io.frogmi.earthquakes.repos.FeatureRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -10,15 +11,17 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
-public class EarthquakeDataLoader implements CommandLineRunner {
+public class EarthquakeDataLoader {
 
     private final FeatureRepository featureRepository;
 
@@ -26,12 +29,12 @@ public class EarthquakeDataLoader implements CommandLineRunner {
         this.featureRepository = featureRepository;
     }
 
-    @Override
-    public void run(String... args) throws Exception {
+    @Scheduled(fixedDelay = 30,timeUnit = TimeUnit.DAYS)
+    public void loadData() {
         RestTemplate restTemplate = new RestTemplate();
         ObjectMapper mapper = new ObjectMapper();
 
-        System.out.println("*".repeat(10) + "Running EarthquakeDataLoader" + "*".repeat(10));
+        System.out.println("*".repeat(10) + " Running EarthquakeDataLoader " + "*".repeat(10));
 
         String url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
 
@@ -55,28 +58,34 @@ public class EarthquakeDataLoader implements CommandLineRunner {
                 featureList.stream()
                         .filter(featureData ->
                                 !featureRepository.existsByExternalId(featureData.getId()) &&
-                                featureData.getProperties().getTitle() != null &&
-                                featureData.getProperties().getUrl() != null &&
-                                featureData.getProperties().getPlace() != null &&
-                                featureData.getProperties().getMagType() != null &&
-                                featureData.getGeometry().getCoordinates()[0] != null &&
-                                featureData.getGeometry().getCoordinates()[1] != null)
-                        .map(featureData -> Feature.builder()
-                            .type(featureData.getType())
-                            .externalId(featureData.getId())
-                            .magnitude(featureData.getProperties().getMag())
-                            .place(featureData.getProperties().getPlace())
-                            .time(featureData.getProperties().getTime())
-                            .tsunami(featureData.getProperties().getTsunami())
-                            .magType(featureData.getProperties().getMagType())
-                            .title(featureData.getProperties().getTitle())
-                            .longitude(featureData.getGeometry().getCoordinates()[0])
-                            .latitude(featureData.getGeometry().getCoordinates()[1])
-                            .externalUrl(featureData.getProperties().getUrl())
-                            .build())
+                                areRequiredPropertiesNotNull(featureData))
+                        .map(featureData -> mapToEntity(featureData, new Feature()))
                         .forEach(featureRepository::save);
-                System.out.println(featureList.get(0));
             }
         }
+    }
+
+    private boolean areRequiredPropertiesNotNull(FeatureData featureData) {
+        return featureData.getProperties().getTitle() != null &&
+                featureData.getProperties().getUrl() != null &&
+                featureData.getProperties().getPlace() != null &&
+                featureData.getProperties().getMagType() != null &&
+                featureData.getGeometry().getCoordinates()[0] != null &&
+                featureData.getGeometry().getCoordinates()[1] != null;
+    }
+
+    private Feature mapToEntity(final FeatureData featureData, final Feature feature) {
+        feature.setType(featureData.getType());
+        feature.setExternalId(featureData.getId());
+        feature.setMagnitude(featureData.getProperties().getMag());
+        feature.setPlace(featureData.getProperties().getPlace());
+        feature.setTime(featureData.getProperties().getTime());
+        feature.setTsunami(featureData.getProperties().getTsunami());
+        feature.setMagType(featureData.getProperties().getMagType());
+        feature.setTitle(featureData.getProperties().getTitle());
+        feature.setLongitude(featureData.getGeometry().getCoordinates()[0]);
+        feature.setLatitude(featureData.getGeometry().getCoordinates()[1]);
+        feature.setExternalUrl(featureData.getProperties().getUrl());
+        return feature;
     }
 }

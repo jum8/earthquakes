@@ -30,11 +30,6 @@ public class CommentService {
                 .toList();
     }
 
-    public CommentDTO get(final Long id) {
-        return commentRepository.findById(id)
-                .map(comment -> mapToDTO(comment, new CommentDTO()))
-                .orElseThrow(NotFoundException::new);
-    }
 
     public Long create(final CommentDTO commentDTO) {
         final Comment comment = new Comment();
@@ -42,16 +37,7 @@ public class CommentService {
         return commentRepository.save(comment).getId();
     }
 
-    public void update(final Long id, final CommentDTO commentDTO) {
-        final Comment comment = commentRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
-        mapToEntity(commentDTO, comment);
-        commentRepository.save(comment);
-    }
 
-    public void delete(final Long id) {
-        commentRepository.deleteById(id);
-    }
 
     private CommentDTO mapToDTO(final Comment comment, final CommentDTO commentDTO) {
         commentDTO.setId(comment.getId());

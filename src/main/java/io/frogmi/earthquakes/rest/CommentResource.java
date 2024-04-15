@@ -33,11 +33,6 @@ public class CommentResource {
         return ResponseEntity.ok(commentService.findAll());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CommentDTO> getComment(@PathVariable(name = "id") final Long id) {
-        return ResponseEntity.ok(commentService.get(id));
-    }
-
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<Long> createComment(@RequestBody @Valid final CommentDTO commentDTO) {
@@ -45,18 +40,5 @@ public class CommentResource {
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Long> updateComment(@PathVariable(name = "id") final Long id,
-                                              @RequestBody @Valid final CommentDTO commentDTO) {
-        commentService.update(id, commentDTO);
-        return ResponseEntity.ok(id);
-    }
-
-    @DeleteMapping("/{id}")
-    @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteComment(@PathVariable(name = "id") final Long id) {
-        commentService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
 
 }

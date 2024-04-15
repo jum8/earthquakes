@@ -6,6 +6,7 @@ import io.frogmi.earthquakes.domain.Feature;
 import io.frogmi.earthquakes.model.FeatureDTO;
 import io.frogmi.earthquakes.model.FeatureData;
 import io.frogmi.earthquakes.repos.FeatureRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@Slf4j
 public class EarthquakeDataLoader {
 
     private final FeatureRepository featureRepository;
@@ -58,20 +60,48 @@ public class EarthquakeDataLoader {
                 featureList.stream()
                         .filter(featureData ->
                                 !featureRepository.existsByExternalId(featureData.getId()) &&
-                                areRequiredPropertiesNotNull(featureData))
+                                areRequiredPropertiesNotNull(featureData) &&
+                                validateMagnitude(featureData) &&
+                                validateLongitude(featureData) &&
+                                validateLatitude(featureData)
+                        )
                         .map(featureData -> mapToEntity(featureData, new Feature()))
                         .forEach(featureRepository::save);
             }
         }
     }
 
+    private boolean validateMagnitude(FeatureData featureData) {
+        Double mag = featureData.getProperties().getMag();
+        boolean result = mag >= - 1.0 && mag <= 10.0;
+        if(!result) log.warn("Feature with id " + featureData.getId() + " magnitude " + mag + " is out of bounds");
+        return result;
+    }
+
+    private boolean validateLongitude(FeatureData featureData) {
+        Double longitude = featureData.getGeometry().getCoordinates()[0];
+        boolean result = longitude >= - 180.0 && longitude <= 180.0;
+        if(!result) log.warn("Feature with id " + featureData.getId() + " longitude " + longitude + " is out of bounds");
+        return result;
+    }
+
+    private boolean validateLatitude(FeatureData featureData) {
+        Double latitude = featureData.getProperties().getMag();
+        boolean result = latitude >= - 90.0 && latitude <= 90.0;
+        if(!result) log.warn("Feature with id " + featureData.getId() + " magnitude " + latitude + " is out of bounds");
+        return result;
+    }
+
     private boolean areRequiredPropertiesNotNull(FeatureData featureData) {
-        return featureData.getProperties().getTitle() != null &&
+        boolean result = featureData.getProperties().getTitle() != null &&
                 featureData.getProperties().getUrl() != null &&
                 featureData.getProperties().getPlace() != null &&
                 featureData.getProperties().getMagType() != null &&
                 featureData.getGeometry().getCoordinates()[0] != null &&
                 featureData.getGeometry().getCoordinates()[1] != null;
+        if (!result) log.warn("Feature with id " + featureData.getId() + " has null required properties");
+
+        return result;
     }
 
     private Feature mapToEntity(final FeatureData featureData, final Feature feature) {
